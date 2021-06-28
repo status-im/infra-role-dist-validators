@@ -1,11 +1,23 @@
 ---
+- name: Verify the range of validators is provided
+  assert:
+    that:
+      - dist_validators_start is defined
+      - dist_validators_end is defined
+    fail_msg: 'No start or end of validators provided!'
+    quiet: true
+
+- name: Verify the range of validators is provided
+  assert:
+    that: dist_validators_data_path is defined
+    fail_msg: 'Beacon node folder not provided!'
+    quiet: true
+
 - name: Find new and old validators
   include_tasks: read.yml
-  when: dist_validators_layout is defined
 
 - name: Verify if validators changed
   include_tasks: check.yml
-  when: dist_validators_layout is defined
 
 - name: Copy over validators and secrets
   include_tasks: write.yml

@@ -3,16 +3,21 @@
   assert:
     that: '{{ (found_validators|length) == (found_secrets|length) }}'
     fail_msg: 'Number of total validators and secrets does not match!'
+    quiet: true
 
 - name: Extract slice for host
   set_fact:
-    new_validators: '{{ found_validators[dist_validators_range["start"]:dist_validators_range["end"]] }}'
-    new_secrets: '{{ found_secrets[dist_validators_range["start"]:dist_validators_range["end"]] }}'
+    new_validators: '{{ found_validators[(dist_validators_start|int):(dist_validators_end|int)] }}'
+    new_secrets: '{{ found_secrets[(dist_validators_start|int):(dist_validators_end|int)] }}'
 
 - name: Verify that validators and secrets overlap
   assert:
     that: '{{ (new_validators|intersect(new_secrets)|length) == (new_validators|length) }}'
     fail_msg: 'List of validators and their secrets does not overlap!'
+    quiet: true
+
+- name: 'Found {{ new_validators|length }} validators'
+  meta: noop
 
 - name: Check compare existing validators
   set_fact:

@@ -2,6 +2,16 @@
 
 This role copies secrets and validators required for testnets to which [Nimbus beacon nodes](https://nimbus.team/) contribute.
 
+# Configuration
+
+You need to provide the start and end indices of validators to be fetched from the repo:
+```yaml
+dist_validators_start: 1500
+dist_validators_end: 3000
+dist_validators_data_path: '/docker/node/data/network'
+```
+The data path is assumed to be the correct location of `validators` and `secrets` folders.
+
 # Warning
 
 __This role does not take into account the currently existing layout of validators and secrets!__
