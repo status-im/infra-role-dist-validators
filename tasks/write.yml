@@ -36,13 +36,13 @@
   args: { warn: false }
 
 - name: Adjust validators dir permissions
-  shell: 'chmod 0700 -R "{{ dist_validators_wallet_path }}/*"'
+  shell: 'find "{{ dist_validators_wallet_path }}" -type d -exec chmod 0700 -R {} \;'
   args: { warn: false }
 
 - name: Adjust validators file permissions
-  shell: 'find "{{ dist_validators_wallet_path }}/" -type f -exec chmod 0600 {} \;'
+  shell: 'find "{{ dist_validators_wallet_path }}" -type f -exec chmod 0600 {} \;'
   args: { warn: false }
 
 - name: Adjust secrets permissions
-  shell: chmod 0600 -R {{ dist_validators_secrets_path }}/*
+  shell: 'find "{{ dist_validators_secrets_path }}" -type f -exec chmod 0600 {} \;'
   args: { warn: false }
