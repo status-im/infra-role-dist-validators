@@ -46,3 +46,8 @@
 - name: Adjust secrets permissions
   shell: 'find "{{ dist_validators_secrets_path }}" -type f -exec chmod 0600 {} \;'
   args: { warn: false }
+
+- name: Return list of deployed validators
+  set_fact:
+    # Available for beacon-node role to display. Indicates success.
+    dist_validators_deployed: '{{ new_validators }}'
