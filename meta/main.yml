@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  author: Jakub Sokołowski <jakub@status.im>
+  description: Deploy validators and secrets for Nimbus beacon node.
+  company: Status.im
+  license: MIT
+  min_ansible_version: 1.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - xenial
