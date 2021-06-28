@@ -1,6 +1,6 @@
 # Description
 
-This role copies secrets and validators required for testnets to which Nimbus beacon nodes contribute.
+This role copies secrets and validators required for testnets to which [Nimbus beacon nodes](https://nimbus.team/) contribute.
 
 # Warning
 
@@ -11,5 +11,6 @@ Take into account what is already in place and which nodes are running and in wh
 # Details
 
 You can read about validators and secrets here:
-https://status-im.github.io/nimbus-eth2/faq.html#what-exactly-is-a-validator
-https://status-im.github.io/nimbus-eth2/keys.html#storage
+
+* https://status-im.github.io/nimbus-eth2/faq.html#what-exactly-is-a-validator
+* https://status-im.github.io/nimbus-eth2/keys.html#storage
