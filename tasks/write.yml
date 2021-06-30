@@ -23,13 +23,13 @@
     rsync -ru --delete --exclude="slashing_protection.sqlite3*" \
       {{ new_validators | join(" ") }} '{{ dist_validators_wallet_path }}/'
   args:
-    chdir: '{{ dist_validators_path }}'
+    chdir: '{{ dist_validators_repo_path }}/{{ dist_validators_name | mandatory }}/validators'
 
 - name: Copy over secrets
   command: |
-    rsync -ru --delete {{ new_secrets | join(" ") }} '{{ dist_validators_secrets_path }}/'
+    rsync -ru --delete {{ new_secrets | join(" ") }} '{{ dist_validators_secret_path }}/'
   args:
-    chdir: '{{ dist_validators_secrets_path }}'
+    chdir: '{{ dist_validators_repo_path }}/{{ dist_validators_name | mandatory }}/secrets'
 
 - name: Adjust folder owner and group
   command: 'chown dockremap:docker -R {{ dist_validators_data_path }}'
@@ -44,7 +44,7 @@
   args: { warn: false }
 
 - name: Adjust secrets permissions
-  shell: 'find "{{ dist_validators_secrets_path }}" -type f -exec chmod 0600 {} \;'
+  shell: 'find "{{ dist_validators_secret_path }}" -type f -exec chmod 0600 {} \;'
   args: { warn: false }
 
 - name: Return list of deployed validators

@@ -16,9 +16,6 @@
     fail_msg: 'List of validators and their secrets does not overlap!'
     quiet: true
 
-- name: 'Found {{ new_validators|length }} validators'
-  meta: noop
-
 - name: Check compare existing validators
   set_fact:
     secrets_diff: '{{ new_secrets|difference(old_secrets) }}'

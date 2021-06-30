@@ -11,7 +11,7 @@
 
 - name: Find all validators
   find:
-    paths: '{{ dist_validators_path }}'
+    paths: '{{ dist_validators_deposits_path }}/validators'
     file_type: directory
     recurse: true
     depth: 1
@@ -19,7 +19,7 @@
 
 - name: Find all secrets
   find:
-    paths: '{{ dist_validators_secrets_path }}'
+    paths: '{{ dist_validators_deposits_path }}/secrets'
     file_type: file
     recurse: true
     depth: 1
