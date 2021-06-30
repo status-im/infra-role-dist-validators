@@ -5,6 +5,9 @@
 #dist_validators_end: 1000
 #dist_validators_data_path: '/docker/node/data/network'
 
+dist_validators_user: 'dockremap'
+dist_validators_group: 'docker'
+
 # These path need to be where Beacon Node will be looking for validators and secrets.
 dist_validators_wallet_path: '{{ dist_validators_data_path }}/validators'
 dist_validators_secret_path: '{{ dist_validators_data_path }}/secrets'
