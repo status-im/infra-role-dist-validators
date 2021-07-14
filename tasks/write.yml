@@ -33,7 +33,7 @@
 
 - name: Adjust folder owner and group
   command: |
-    chown {{ dist_validators_user }}:{{ dist_validators_group }} -R {{ dist_validators_data_path }}'
+    chown {{ dist_validators_user }}:{{ dist_validators_group }} -R '{{ dist_validators_data_path }}'
   args: { warn: false }
 
 - name: Adjust validators dir permissions
