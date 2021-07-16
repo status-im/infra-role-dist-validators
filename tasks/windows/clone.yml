@@ -1,0 +1,32 @@
+---
+# "Remote: Agent forwarding not supported in Windows yet"
+# For that reason we use a dedicated deploy RSA key.
+- name: Create SSH key file for repo
+  win_template:
+    src: 'ssh_key.j2'
+    dest: '{{ dist_validators_repo_ssh_key_path }}'
+    newline_sequence: '\n'
+
+- name: Fix SSH key file ownership
+  win_owner:
+    path: '{{ dist_validators_repo_ssh_key_path }}'
+    user: '{{ dist_validators_repo_user }}'
+
+# There is no win_git module.
+- name: Clone repo with secrets & validators
+  become: true
+  become_user: '{{ dist_validators_repo_user }}'
+  vars:
+    ansible_become_user: '{{ dist_validators_repo_user }}'
+    ansible_become_pass: '{{ dist_validators_repo_user_pass | mandatory }}'
+  win_command: |
+    git --no-pager clone --depth 1 \
+      {{ dist_validators_repo_url }} \
+      {{ dist_validators_repo_path }} \
+      --branch {{ dist_validators_repo_rev }}
+  environment:
+    GIT_SSH_COMMAND: >-
+      ssh -o "StrictHostKeyChecking=accept-new"
+      -i "{{ dist_validators_repo_ssh_key_path }}"
+  args:
+    creates: '{{ dist_validators_repo_path }}'

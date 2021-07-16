@@ -4,16 +4,25 @@
 #dist_validators_start: 0
 #dist_validators_end: 1000
 #dist_validators_data_path: '/docker/node/data/network'
+#dist_validators_user_pass: ~
 
-dist_validators_user: 'dockremap'
-dist_validators_group: 'docker'
+dist_validators_user: 'nimbus'
 
-# These path need to be where Beacon Node will be looking for validators and secrets.
-dist_validators_wallet_path: '{{ dist_validators_data_path }}/validators'
-dist_validators_secret_path: '{{ dist_validators_data_path }}/secrets'
+# Script log level
+dist_validators_log_level: 'info'
+
+# Different on Linux and Windows
+dist_validators_users_path: '{{ (ansible_system == "Linux") | ternary("/home", "C:/Users") }}'
 
 dist_validators_repo_url: 'git@github.com:status-im/nimbus-private.git'
 dist_validators_repo_rev: 'master'
-dist_validators_repo_user: 'admin'
-dist_validators_repo_path: '/home/{{ dist_validators_repo_user }}/distribute-validators'
+dist_validators_repo_user: '{{ dist_validators_user }}'
+dist_validators_repo_user_pass: '{{ dist_validators_user_pass | mandatory }}'
+dist_validators_repo_user_path: '{{ dist_validators_users_path }}/{{ dist_validators_repo_user }}'
+dist_validators_repo_path: '{{ dist_validators_repo_user_path }}/dist-validators'
+# Necessary to clone the repository.
+dist_validators_repo_ssh_key: '{{lookup("passwordstore", "services/Nimbus/nimbus-private/ssh.key returnall=true")}}'
+dist_validators_repo_ssh_key_dir: '{{ dist_validators_repo_user_path }}/.ssh'
+dist_validators_repo_ssh_key_path: '{{ dist_validators_repo_ssh_key_dir }}/dist_val_id_rsa'
+# Folder specific to given testnet.
 dist_validators_deposits_path: '{{ dist_validators_repo_path }}/{{ dist_validators_name }}'
