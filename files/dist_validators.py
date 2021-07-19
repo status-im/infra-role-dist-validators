@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+import os
 import sys
 import logging
-from shutil import copyfile, copytree
-from optparse import OptionParser
 from pathlib import Path
-from os import listdir, rmdir, remove, path
+from optparse import OptionParser
+from shutil import copyfile, copytree
+from subprocess import check_call, DEVNULL
+from os import listdir, rmdir, remove, path, chmod
 
 HELP_DESCRIPTION='This script removes files from s3 bucket.'
 HELP_EXAMPLE='Example: ./dist_validators.py -i ~/deposits -o /data/beacon-node -s 0 -e 10'
@@ -13,6 +15,9 @@ HELP_EXAMPLE='Example: ./dist_validators.py -i ~/deposits -o /data/beacon-node -
 log_format = '[%(levelname)s] %(message)s'
 logging.basicConfig(level=logging.INFO, format=log_format)
 LOG = logging.getLogger(__name__)
+
+# Shorthand for identifying OS type.
+is_posix = os.name == 'posix'
 
 def parse_opts():
     parser = OptionParser(description=HELP_DESCRIPTION, epilog=HELP_EXAMPLE)
@@ -24,6 +29,8 @@ def parse_opts():
                       help='Starting index of validators/secrets to copy.')
     parser.add_option('-e', '--end', default=0, type=int,
                       help='Ending index of validators/secrets to copy.')
+    parser.add_option('-u', '--user', default='nimbus',
+                      help='User that should own the created files.')
     parser.add_option('-p', '--print-count', action='store_true',
                       help='Print number of deployed validators to stdout.')
     parser.add_option('-d', '--dry-run', action='store_true', default=False,
@@ -43,6 +50,28 @@ def parse_opts():
         parser.error('the --output parameter is required')
 
     return (opts, args)
+
+# https://github.com/status-im/nimbus-eth2/blob/v1.4.1/scripts/makedir.sh
+def fix_dir_perms(path, user):
+    if is_posix: # Linux
+        if path.is_file():
+            chmod(path, 0o600)
+        elif path.is_dir():
+            chmod(path, 0o700)
+        else:
+            raise Exception('Unknown file type!')
+    else: # Windows
+        if path.is_file():
+            perms = '(F)'
+        elif  path.is_dir():
+            perms = '(OI)(CI)(F)'
+        else:
+            raise Exception('Unknown file type!')
+        check_call([
+            'icacls', path,
+            '/inheritance:r', # Remove all inherited access from path ACL
+            '/grant:r', '%s:%s' % (user, perms),
+        ], stdout=DEVNULL)
 
 def main():
     (opts, args) = parse_opts()
@@ -70,9 +99,11 @@ def main():
     if not out_val_dir.is_dir():
         LOG.debug('Creating output validators directory')
         out_val_dir.mkdir(parents=True)
+    fix_dir_perms(out_val_dir, opts.user)
     if not out_sec_dir.is_dir():
         LOG.debug('Creating output secrets directory')
         out_sec_dir.mkdir(parents=True)
+    fix_dir_perms(out_sec_dir, opts.user)
 
     LOG.debug('Finding old validators/secrets...')
     old_val = sorted(listdir(out_val_dir))
@@ -126,14 +157,18 @@ def main():
         dst = out_val_dir / val
         LOG.debug('Copying: %s -> %s', src, dst)
         copytree(src, dst)
+        fix_dir_perms(dst, opts.user)
+        fix_dir_perms(dst / 'keystore.json', opts.user)
     LOG.info('Copying %s new secrets...', len(new_sec))
     for sec in new_sec:
         src = in_dir / 'secrets' / sec
         dst = out_sec_dir / sec
         LOG.debug('Copying: %s -> %s', src, dst)
         copyfile(src, dst)
+        fix_dir_perms(dst, opts.user)
 
     LOG.info('SUCCESS')
+    # Useful for Ansible to know if anything changed
     if opts.print_count:
         print(len(new_val))
 
