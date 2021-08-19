@@ -1,0 +1,29 @@
+---
+- name: Create SSH config directory
+  file:
+    path: '{{ dist_validators_repo_ssh_key_dir }}'
+    owner: '{{ dist_validators_repo_user }}'
+    group: 'admin'
+    state: 'directory'
+    mode: 0750
+
+- name: Create SSH key file for repo
+  template:
+    src: 'ssh_key.j2'
+    dest: '{{ dist_validators_repo_ssh_key_path }}'
+    owner: '{{ dist_validators_repo_user }}'
+    newline_sequence: '\n'
+    group: 'admin'
+    mode: 0600
+
+- name: Clone repo with secrets & validators
+  become: true
+  become_user: '{{ dist_validators_repo_user }}'
+  git:
+    repo: '{{ dist_validators_repo_url }}'
+    dest: '{{ dist_validators_repo_path }}'
+    version: '{{ dist_validators_repo_rev }}'
+    key_file: '{{ dist_validators_repo_ssh_key_path }}'
+    update: true
+    force: true
+    accept_hostkey: true

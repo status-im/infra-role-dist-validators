@@ -1,0 +1,25 @@
+---
+- name: Copy over distributor script
+  copy:
+    src: 'dist_validators.py'
+    dest: '{{ dist_validators_repo_user_path }}/dist_validators.py'
+    owner: '{{ dist_validators_repo_user }}'
+    group: 'admin'
+    mode: 0755
+
+- name: Copy over validators and secrets
+  become_user: '{{ dist_validators_repo_user }}'
+  register: dist_validators_run
+  command: >-
+    '{{ dist_validators_repo_user_path }}/dist_validators.py'
+      --input={{ dist_validators_deposits_path | mandatory }}
+      --output={{ dist_validators_data_path | mandatory }}
+      --start={{ dist_validators_start | mandatory }}
+      --end={{ dist_validators_end | mandatory }}
+      --log-level={{ dist_validators_log_level }}
+      --print-count
+
+- name: Extract numberof deployed validators
+  when: dist_validators_run.stdout != ""
+  set_fact:
+    dist_validators_deployed: "{{ dist_validators_run.stdout | int }}"
