@@ -13,12 +13,5 @@
     fail_msg: 'Beacon node folder not provided!'
     quiet: true
 
-- when: ansible_system == "Linux"
-  include_tasks: linux/clone.yml
-- when: ansible_system == "Win32NT"
-  include_tasks: windows/clone.yml
-
-- when: ansible_system == "Linux"
-  include_tasks: linux/copy.yml
-- when: ansible_system == "Win32NT"
-  include_tasks: windows/copy.yml
+- include_tasks: '{{ ansible_system|lower }}/clone.yml'
+- include_tasks: '{{ ansible_system|lower }}/copy.yml'

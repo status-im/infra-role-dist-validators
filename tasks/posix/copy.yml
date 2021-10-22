@@ -4,7 +4,7 @@
     src: 'dist_validators.py'
     dest: '{{ dist_validators_repo_user_path }}/dist_validators.py'
     owner: '{{ dist_validators_repo_user }}'
-    group: 'adm'
+    group: '{{ dist_validators_admin_group }}'
     mode: 0755
 
 - name: Copy over validators and secrets

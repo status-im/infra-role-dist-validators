@@ -11,8 +11,11 @@ dist_validators_user: 'nimbus'
 # Script log level
 dist_validators_log_level: 'info'
 
-# Different on Linux and Windows
-dist_validators_users_path: '{{ (ansible_system == "Linux") | ternary("/home", "C:/Users") }}'
+# Different based on platform
+dist_validators_users_paths: { Linux: '/home', Darwin: '/Users', Win32NT: 'C:/Users' }
+dist_validators_users_path: '{{ dist_validators_users_paths[ansible_system] }}'
+dist_validators_admin_groups: { Linux: 'adm', Darwin: 'admin', Win32NT: 'Administrators' }
+dist_validators_admin_group: '{{ dist_validators_admin_groups[ansible_system] }}'
 
 dist_validators_repo_url: 'git@github.com:status-im/nimbus-private.git'
 dist_validators_repo_rev: 'master'
