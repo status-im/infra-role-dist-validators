@@ -4,11 +4,11 @@
     src: 'dist_validators.py'
     dest: '{{ dist_validators_repo_user_path }}/dist_validators.py'
 
+# WARNING: Make sure there's no host-wide become-user set.
 - name: Copy over validators and secrets
   become: true
   become_user: '{{ dist_validators_repo_user }}'
   vars:
-    ansible_become_user: '{{ dist_validators_repo_user }}'
     ansible_become_pass: '{{ dist_validators_repo_user_pass | mandatory }}'
   register: dist_validators_run
   win_shell: >-
