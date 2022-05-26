@@ -9,6 +9,7 @@
   become: true
   become_user: '{{ dist_validators_repo_user }}'
   vars:
+    ansible_become_user: '{{ dist_validators_repo_user | mandatory }}'
     ansible_become_pass: '{{ dist_validators_repo_user_pass | mandatory }}'
   register: dist_validators_run
   win_shell: >-
@@ -20,7 +21,7 @@
       --log-level={{ dist_validators_log_level }} \
       --print-count
 
-- name: Extract numberof deployed validators
+- name: Extract number of deployed validators
   when: dist_validators_run.stdout != ""
   set_fact:
     dist_validators_deployed: "{{ dist_validators_run.stdout | int }}"

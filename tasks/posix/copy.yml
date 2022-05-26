@@ -19,7 +19,7 @@
       --log-level={{ dist_validators_log_level }}
       --print-count
 
-- name: Extract numberof deployed validators
+- name: Extract number of deployed validators
   when: dist_validators_run.stdout != ""
   set_fact:
     dist_validators_deployed: "{{ dist_validators_run.stdout | int }}"
