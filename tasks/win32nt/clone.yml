@@ -30,3 +30,20 @@
       -i "{{ dist_validators_repo_ssh_key_path }}"
   args:
     creates: '{{ dist_validators_repo_path }}'
+  register: git_clone
+
+- name: Update repo with secrets & validators
+  when: git_clone.skipped
+  become: true
+  become_user: '{{ dist_validators_repo_user }}'
+  vars:
+    ansible_become_user: '{{ dist_validators_repo_user }}'
+    ansible_become_pass: '{{ dist_validators_repo_user_pass | mandatory }}'
+  win_command: |
+    git --no-pager pull origin {{ dist_validators_repo_rev }}
+  args:
+    chdir: '{{ dist_validators_repo_path }}'
+  environment:
+    GIT_SSH_COMMAND: >-
+      ssh -o "StrictHostKeyChecking=accept-new"
+      -i "{{ dist_validators_repo_ssh_key_path }}"
