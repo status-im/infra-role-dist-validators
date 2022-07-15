@@ -12,7 +12,7 @@ dist_validators_name: 'prater_deposits'
 dist_validators_start: 1500
 dist_validators_end: 3000
 # Destination where validators and secrets should be copied.
-dist_validators_data_path: '/docker/node/data/network'
+dist_validators_path: '/docker/node/data/network'
 # Necessary on Windows to impersonate nimbus user.
 dist_validators_user_pass: 'super-secret-password'
 ```

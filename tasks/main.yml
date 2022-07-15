@@ -9,7 +9,7 @@
 
 - name: Verify the destination for validators is provided
   assert:
-    that: dist_validators_data_path is defined
+    that: dist_validators_path is defined
     fail_msg: 'Beacon node folder not provided!'
     quiet: true
 
