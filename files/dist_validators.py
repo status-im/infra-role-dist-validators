@@ -128,8 +128,8 @@ def main():
         sys.exit(1)
 
     LOG.debug('Verifying if a difference exists...') 
-    val_diff = set(new_val) - set(old_val)
-    sec_diff = set(new_sec) - set(old_sec)
+    val_diff = set(new_val).symmetric_difference(set(old_val))
+    sec_diff = set(new_sec).symmetric_difference(set(old_sec))
 
     if len(val_diff) > 0 or len(sec_diff) > 0:
         LOG.info('Difference in validator layout found.')
