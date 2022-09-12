@@ -9,8 +9,10 @@
 
 - name: Verify the destination for validators is provided
   assert:
-    that: dist_validators_path is defined
-    fail_msg: 'Beacon node folder not provided!'
+    that:
+      - dist_validators_sec_path is defined
+      - dist_validators_val_path is defined
+    fail_msg: 'Destination folders not provided!'
     quiet: true
 
 - include_tasks: '{{ ansible_system|lower }}/clone.yml'

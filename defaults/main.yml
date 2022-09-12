@@ -3,7 +3,8 @@
 #dist_validators_name: 'prater_deposits'
 #dist_validators_start: 0
 #dist_validators_end: 1000
-#dist_validators_path: '/docker/node/data/network'
+#dist_validators_sec_path: '/docker/node-01/data/secrets'
+#dist_validators_val_path: '/docker/node-01/data/validators'
 #dist_validators_user_pass: ~
 
 dist_validators_user: 'nimbus'

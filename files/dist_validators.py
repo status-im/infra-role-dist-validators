@@ -9,7 +9,9 @@ from subprocess import check_call, DEVNULL
 from os import listdir, rmdir, remove, path, chmod
 
 HELP_DESCRIPTION='This script removes files from s3 bucket.'
-HELP_EXAMPLE='Example: ./dist_validators.py -i ~/deposits -o /data/beacon-node -s 0 -e 10'
+HELP_EXAMPLE='''
+Example: ./dist_validators.py -i ~/secrets -I ~/validators -o /node/secrets -O /node/validators -s 0 -e 10
+'''
 
 # Setup logging.
 log_format = '[%(levelname)s] %(message)s'
@@ -21,10 +23,14 @@ is_posix = os.name == 'posix'
 
 def parse_opts():
     parser = OptionParser(description=HELP_DESCRIPTION, epilog=HELP_EXAMPLE)
-    parser.add_option('-i', '--input',
-                      help='Path that contains secrets and validators.')
-    parser.add_option('-o', '--output',
-                      help='Path used by beacon node for data storage.')
+    parser.add_option('-i', '--input-sec',
+                      help='Path that contains all secrets.')
+    parser.add_option('-I', '--input-val',
+                      help='Path that contains all validators.')
+    parser.add_option('-o', '--output-sec',
+                      help='Destination path for secrets.')
+    parser.add_option('-O', '--output-val',
+                      help='Destination path for validators.')
     parser.add_option('-s', '--start', default=0, type=int,
                       help='Starting index of validators/secrets to copy.')
     parser.add_option('-e', '--end', default=0, type=int,
@@ -44,10 +50,10 @@ def parse_opts():
 
     (opts, args) = parser.parse_args()
 
-    if not opts.input:
-        parser.error('the --input parameter is required')
-    if not opts.output:
-        parser.error('the --output parameter is required')
+    if not opts.input_sec or not opts.input_val:
+        parser.error('the --input-sec and --input-val parameters are required')
+    if not opts.output_sec or not opts.output_val:
+        parser.error('the --output-sec and --output-val parameters are required')
 
     return (opts, args)
 
@@ -78,12 +84,12 @@ def main():
 
     LOG.setLevel(opts.log_level.upper())
 
-    in_dir = Path(opts.input)
-    out_dir = Path(opts.output)
+    in_dir_val = Path(opts.input_val)
+    in_dir_sec = Path(opts.input_sec)
 
     LOG.debug('Finding new validators/secrets...')
-    found_val = sorted(listdir(in_dir / 'validators'))
-    found_sec = sorted(listdir(in_dir / 'secrets'))
+    found_val = sorted(listdir(in_dir_val))
+    found_sec = sorted(listdir(in_dir_sec))
 
     LOG.debug('Found %s new validators.', len(found_val))
     LOG.debug('Found %s new secrets.', len(found_sec))
@@ -94,20 +100,20 @@ def main():
         raise Exception('New validators and secrets do not match.')
 
     # Create output directoties if missing
-    out_val_dir = out_dir / 'validators'
-    out_sec_dir = out_dir / 'secrets'
-    if not out_val_dir.is_dir():
+    out_dir_val = Path(opts.output_val)
+    out_dir_sec = Path(opts.output_sec)
+    if not out_dir_val.is_dir():
         LOG.debug('Creating output validators directory')
-        out_val_dir.mkdir(parents=True)
-    fix_dir_perms(out_val_dir, opts.user)
-    if not out_sec_dir.is_dir():
+        out_dir_val.mkdir(parents=True)
+    fix_dir_perms(out_dir_val, opts.user)
+    if not out_dir_sec.is_dir():
         LOG.debug('Creating output secrets directory')
-        out_sec_dir.mkdir(parents=True)
-    fix_dir_perms(out_sec_dir, opts.user)
+        out_dir_sec.mkdir(parents=True)
+    fix_dir_perms(out_dir_sec, opts.user)
 
     LOG.debug('Finding old validators/secrets...')
-    old_val = sorted(listdir(out_val_dir))
-    old_sec = sorted(listdir(out_sec_dir))
+    old_val = sorted(listdir(out_dir_val))
+    old_sec = sorted(listdir(out_dir_sec))
 
     LOG.debug('Filtering out slashing database...')
     not_slashing_db = lambda p: not p.startswith('slashing')
@@ -154,7 +160,7 @@ def main():
     LOG.info('Copying %s new validators...', len(new_val))
     for val in new_val:
         src = in_dir / 'validators' / val
-        dst = out_val_dir / val
+        dst = out_dir_val / val
         LOG.debug('Copying: %s -> %s', src, dst)
         copytree(src, dst)
         fix_dir_perms(dst, opts.user)
@@ -162,7 +168,7 @@ def main():
     LOG.info('Copying %s new secrets...', len(new_sec))
     for sec in new_sec:
         src = in_dir / 'secrets' / sec
-        dst = out_sec_dir / sec
+        dst = out_dir_sec / sec
         LOG.debug('Copying: %s -> %s', src, dst)
         copyfile(src, dst)
         fix_dir_perms(dst, opts.user)
