@@ -39,6 +39,10 @@ def parse_opts():
                       help='User that should own the created files.')
     parser.add_option('-p', '--print-count', action='store_true',
                       help='Print number of deployed validators to stdout.')
+    parser.add_option('-f', '--force', action='store_true',
+                      help='Update layout even if no changes are detected.')
+    parser.add_option('-P', '--purge', action='store_true', default=False,
+                      help='Purge all validators if non are selected.')
     parser.add_option('-d', '--dry-run', action='store_true', default=False,
                       help='Only print files that will be deleted.')
     parser.add_option('-l', '--log-level', default='info',
@@ -131,13 +135,16 @@ def main():
 
     if len(new_val) == 0 or len(new_sec) == 0:
         LOG.warning('No new validators or secrets selected!')
-        sys.exit(1)
+        if not opts.purge:
+            sys.exit(1)
 
     LOG.debug('Verifying if a difference exists...') 
     val_diff = set(new_val).symmetric_difference(set(old_val))
     sec_diff = set(new_sec).symmetric_difference(set(old_sec))
 
-    if len(val_diff) > 0 or len(sec_diff) > 0:
+    if opts.force:
+        LOG.info('Forcing validator layout update.')
+    elif len(val_diff) > 0 or len(sec_diff) > 0:
         LOG.info('Difference in validator layout found.')
     else:
         LOG.info('No difference in validator layout found. Nothing to do.')
@@ -150,16 +157,16 @@ def main():
     if len(old_val) > 0:
         LOG.info('Removing %s old validators...', len(old_val))
         for val in old_val:
-            remove(out_dir / 'validators' / val / 'keystore.json')
-            rmdir(out_dir / 'validators' / val)
+            remove(out_dir_val / val / 'keystore.json')
+            rmdir(out_dir_val / val)
     if len(old_sec) > 0:
         LOG.info('Removing %s old secrets...', len(old_sec))
         for sec in old_sec:
-            remove(out_dir / 'secrets' / sec)
+            remove(out_dir_sec / sec)
 
     LOG.info('Copying %s new validators...', len(new_val))
     for val in new_val:
-        src = in_dir / 'validators' / val
+        src = in_dir_val / val
         dst = out_dir_val / val
         LOG.debug('Copying: %s -> %s', src, dst)
         copytree(src, dst)
@@ -167,7 +174,7 @@ def main():
         fix_dir_perms(dst / 'keystore.json', opts.user)
     LOG.info('Copying %s new secrets...', len(new_sec))
     for sec in new_sec:
-        src = in_dir / 'secrets' / sec
+        src = in_dir_sec / sec
         dst = out_dir_sec / sec
         LOG.debug('Copying: %s -> %s', src, dst)
         copyfile(src, dst)
