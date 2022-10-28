@@ -7,6 +7,9 @@
 #dist_validators_val_path: '/docker/node-01/data/validators'
 #dist_validators_user_pass: ~
 
+# Disable to not allow removal of validators.
+dist_validators_purge_enabled: true
+
 dist_validators_user: 'nimbus'
 
 # Script log level

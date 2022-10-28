@@ -19,6 +19,7 @@
       --start={{ dist_validators_start | mandatory }}
       --end={{ dist_validators_end | mandatory }}
       --log-level={{ dist_validators_log_level }}
+      {% if dist_validators_purge_enabled %}--purge{% endif %}
       --print-count
 
 - name: Extract number of deployed validators
