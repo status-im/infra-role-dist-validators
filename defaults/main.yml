@@ -28,7 +28,7 @@ dist_validators_repo_user_pass: '{{ dist_validators_user_pass | mandatory }}'
 dist_validators_repo_user_path: '{{ dist_validators_users_path }}/{{ dist_validators_repo_user }}'
 dist_validators_repo_path: '{{ dist_validators_repo_user_path }}/dist-validators'
 # Necessary to clone the repository.
-dist_validators_repo_ssh_key: '{{lookup("bitwarden", "nimbus/validators-deploy-key", file="id_rsa")}}'
+#dist_validators_repo_ssh_key: ~
 dist_validators_repo_ssh_key_dir: '{{ dist_validators_repo_user_path }}/.ssh'
 dist_validators_repo_ssh_key_path: '{{ dist_validators_repo_ssh_key_dir }}/dist_val_id_rsa'
 # Folder specific to given testnet.
